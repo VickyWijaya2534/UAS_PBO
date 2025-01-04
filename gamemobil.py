@@ -53,3 +53,42 @@ class Car:
     def get_rect(self):
         return pygame.Rect(self._x, self._y, self._image.get_width(), self._image.get_height())
 
+class PlayerCar(Car):
+    def move(self, keys):
+        if keys[pygame.K_LEFT] and self._x > 50:
+            self._x -= self._speed
+        if keys[pygame.K_RIGHT] and self._x < WIDTH - 50 - self._image.get_width():
+            self._x += self._speed
+        if keys[pygame.K_UP] and self._y > 0:
+            self._y -= self._speed
+        if keys[pygame.K_DOWN] and self._y < HEIGHT - self._image.get_height():
+            self._y += self._speed
+
+def draw_road():
+    pygame.draw.rect(SCREEN, GRAY, (50, 0, WIDTH - 100, HEIGHT))
+    for i in range(0, HEIGHT, 40):
+        pygame.draw.rect(SCREEN, WHITE, (WIDTH // 2 - 5, i, 10, 20))
+
+def spawn_enemy(enemies):
+    """Fungsi untuk membuat musuh baru jika belum mencapai batas maksimum."""
+    if len(enemies) < MAX_ENEMIES:
+        while True:
+            enemy_x = random.randint(50, WIDTH - 100 - 40)
+            enemy_speed = random.randint(3, 6)
+            enemy_image = random.choice(ENEMY_IMAGES)
+            enemy = Car(enemy_x, -60, enemy_image, enemy_speed)
+            if not any(enemy.get_rect().colliderect(e.get_rect()) for e in enemies):
+                enemies.append(enemy)
+                break
+
+def game_over_screen(score):
+    font = pygame.font.SysFont(None, 30)
+    game_over_text = font.render("GAME OVER", True, RED)
+    score_text = font.render(f"Score: {score}", True, WHITE)
+    restart_text = font.render("Press R to Restart or Q to Quit", True, WHITE)
+
+    SCREEN.fill(BLACK)
+    SCREEN.blit(game_over_text, (WIDTH // 2 - game_over_text.get_width() // 2, HEIGHT // 2 - 30))
+    SCREEN.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, HEIGHT // 2 + 30))
+    SCREEN.blit(restart_text, (WIDTH // 2 - restart_text.get_width() // 2, HEIGHT // 2 + 90))
+    pygame.display.flip()
