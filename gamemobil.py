@@ -92,3 +92,49 @@ def game_over_screen(score):
     SCREEN.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, HEIGHT // 2 + 30))
     SCREEN.blit(restart_text, (WIDTH // 2 - restart_text.get_width() // 2, HEIGHT // 2 + 90))
     pygame.display.flip()
+
+   #Update skor ketika musuh keluar dari layar.
+    def update_score(self):
+        """Perbarui skor ketika musuh keluar dari layar."""
+        out_of_bounds = [enemy for enemy in self.enemies if enemy.is_out_of_bounds()]
+        self.score += len(out_of_bounds)
+        self.enemies = [enemy for enemy in self.enemies if not enemy.is_out_of_bounds()]
+
+    #Fungsi utama game. Berisi loop permainan.
+    def run(self):
+        """Fungsi utama game."""
+        running = True
+        while running:
+            SCREEN.fill(YELLOW)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
+            keys = pygame.key.get_pressed()
+            self.player.move(keys)
+            self.draw_road()
+            self.player.draw(SCREEN)
+
+            if random.randint(1, 20) == 1:
+                self.spawn_enemy()
+
+            for enemy in self.enemies:
+                enemy.move()
+                enemy.draw(SCREEN)
+
+            if self.check_collision():
+                self.game_over()
+                return
+
+            self.update_score()
+
+            score_text = self.font.render(f"Score: {self.score}", True, WHITE)
+            SCREEN.blit(score_text, (10, 10))
+            pygame.display.flip()
+            clock.tick(FPS)
+
+
+if __name__ == "__main__":
+    game = Game()
+    game.run()
